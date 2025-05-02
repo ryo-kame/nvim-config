@@ -1,7 +1,18 @@
 -- ~/.config/nvim/init.lua
 
--- ランタイムパスに lazy.nvim を追加
-vim.opt.rtp:prepend(vim.fn.stdpath("config") .. "/lazy/lazy.nvim")
+-- lazy.nvim の self-bootstrap（自動で clone）
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
 
 -- lazy.nvim のプラグイン読み込み
 require("lazy").setup("plugins")
@@ -19,6 +30,7 @@ require("bufferline").setup({
     diagnostics = "nvim_lsp",  -- LSPエラーも表示できる
   }
 })
+
 -- 基本設定
 vim.o.number = true
 vim.o.relativenumber = true
@@ -26,8 +38,8 @@ vim.o.termguicolors = true
 vim.o.clipboard = "unnamedplus"
 vim.opt.fileencodings = { "utf-8", "cp932", "sjis", "euc-jp", "iso-2022-jp" }
 vim.cmd("syntax enable")
+
 -- カラースキーム設定（tokyonight + 透過）
-vim.opt.termguicolors = true
 require("tokyonight").setup({
   style = "night",
   transparent = true,
@@ -37,21 +49,27 @@ require("tokyonight").setup({
   },
 })
 vim.cmd([[colorscheme tokyonight]])
+
 -- 未使用のシンボルを見やすくする（例：少し明るいグレーにする）
-vim.api.nvim_set_hl(0, "@lsp.typemod.unused", { fg = "#7f849c" }) 
+vim.api.nvim_set_hl(0, "@lsp.typemod.unused", { fg = "#7f849c" })
+
 -- Telescope キーマップ
 vim.keymap.set("n", "<C-p>", "<cmd>Telescope find_files<CR>")
 vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<CR>")
 vim.keymap.set("n", "<leader>/", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>")
 vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>")
+
 vim.o.updatetime = 250
 vim.cmd [[autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })]]
+
 vim.o.wrap = false
+
 -- 次のバッファ（ファイル）に移動
 vim.keymap.set("n", "<Tab>", ":bnext<CR>", { noremap = true, silent = true })
 -- 前のバッファに移動
 vim.keymap.set("n", "<S-Tab>", ":bprevious<CR>", { noremap = true, silent = true })
+
 -- TypeScript / JavaScript 用のインデント設定
 vim.o.autoindent = true
 vim.o.smartindent = true
