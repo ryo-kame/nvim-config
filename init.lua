@@ -1,5 +1,6 @@
 -- ~/.config/nvim/init.lua
 
+vim.g.mapleader = ","
 -- lazy.nvim の self-bootstrap（自動で clone）
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -59,6 +60,12 @@ vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<CR>")
 vim.keymap.set("n", "<leader>/", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>")
 vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>")
+vim.keymap.set('n', '<leader>fa', function()
+  require('telescope.builtin').find_files({
+    hidden = true,
+    no_ignore = true
+  })
+end, { desc = "すべてのファイルを表示（.gitignore無視も含む）" })
 
 vim.o.updatetime = 250
 vim.cmd [[autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })]]
@@ -82,3 +89,12 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.bo.expandtab = true  -- タブをスペースに変換
   end,
 })
+
+-- Yank時に自動でMacのクリップボードにもコピー
+vim.api.nvim_set_keymap('v', 'y', '"+y', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', 'yy', '"+yy', { noremap = true, silent = true })
+-- Insertモードで jj を押すと ESC + 英語入力に切り替える
+-- vim.keymap.set('v', 'jk', '<Esc>', { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>r", function()
+  require("nvim-tree.api").tree.change_root_to_node()
+end, { desc = "nvim-tree: Change root to selected node" })
