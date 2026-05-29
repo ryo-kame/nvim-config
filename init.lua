@@ -24,6 +24,7 @@ require("cmp-config")
 require("treesitter")
 require("nvimtree")
 require("telescope-config")
+require("git")
 require("bufferline").setup({
   options = {
     mode = "buffers", -- or "tabs"
