@@ -19,6 +19,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup("plugins")
 
 -- プラグインごとの設定ファイル読み込み（必要なら個別ファイルに分けておくと整理しやすい）
+require("options")
 require("lsp")
 require("cmp-config")
 require("treesitter")

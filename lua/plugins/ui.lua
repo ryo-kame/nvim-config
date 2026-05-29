@@ -14,6 +14,12 @@ return {
       require("catppuccin").setup({
         flavour = "mocha",
         transparent_background = true,
+        -- 透過背景だと区切り線が見えにくいので明るい色で太く描画する
+        custom_highlights = function(colors)
+          return {
+            WinSeparator = { fg = colors.blue, bold = true },
+          }
+        end,
         integrations = {
           nvimtree = true,
           treesitter = true,

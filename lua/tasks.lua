@@ -17,30 +17,48 @@ local function gradle_cmd()
   return "gradle"
 end
 
-local gradle_tasks = { "build", "test", "run", "clean", "bootRun" }
-for _, task in ipairs(gradle_tasks) do
-  overseer.register_template({
-    name = "gradle " .. task,
-    builder = function()
-      return {
-        cmd = { gradle_cmd() },
-        args = { task },
-        components = { "default" },
-      }
-    end,
-  })
-end
+-- npm / pnpm / yarn / cargo / make / just などは overseer 標準プロバイダが
+-- ロックファイルから自動判定してタスク化するため、ここでは登録不要。
+-- Gradle 用プロバイダだけ自前で登録する。
 
--- 任意の Gradle タスクを入力して実行
+local gradle_tasks = { "build", "test", "run", "clean", "bootRun" }
+
+-- generator 方式: build.gradle 等が見つかったときだけタスクを返す
+-- （見つからなければメッセージ文字列を返し、テンプレート一覧から除外される）
 overseer.register_template({
-  name = "gradle <custom>",
-  builder = function()
-    local task = vim.fn.input("Gradle task: ")
-    return {
-      cmd = { gradle_cmd() },
-      args = { task },
-      components = { "default" },
-    }
+  name = "gradle",
+  generator = function(opts, cb)
+    local markers = { "build.gradle", "build.gradle.kts", "settings.gradle", "settings.gradle.kts", "gradlew" }
+    local found = false
+    for _, m in ipairs(markers) do
+      if next(vim.fs.find(m, { upward = true, type = "file", path = opts.dir })) then
+        found = true
+        break
+      end
+    end
+    if not found then
+      cb("Not a Gradle project")
+      return
+    end
+
+    local ret = {}
+    for _, task in ipairs(gradle_tasks) do
+      table.insert(ret, {
+        name = "gradle " .. task,
+        builder = function()
+          return { cmd = { gradle_cmd() }, args = { task }, components = { "default" } }
+        end,
+      })
+    end
+    -- 任意の Gradle タスクを入力して実行
+    table.insert(ret, {
+      name = "gradle <custom>",
+      builder = function()
+        local task = vim.fn.input("Gradle task: ")
+        return { cmd = { gradle_cmd() }, args = { task }, components = { "default" } }
+      end,
+    })
+    cb(ret)
   end,
 })
 
