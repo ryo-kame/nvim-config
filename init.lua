@@ -24,6 +24,9 @@ require("cmp-config")
 require("treesitter")
 require("nvimtree")
 require("telescope-config")
+require("git")
+require("tasks")
+require("ide")
 require("bufferline").setup({
   options = {
     mode = "buffers", -- or "tabs"
@@ -39,17 +42,6 @@ vim.o.termguicolors = true
 vim.o.clipboard = "unnamedplus"
 vim.opt.fileencodings = { "utf-8", "cp932", "sjis", "euc-jp", "iso-2022-jp" }
 vim.cmd("syntax enable")
-
--- カラースキーム設定（tokyonight + 透過）
-require("tokyonight").setup({
-  style = "night",
-  transparent = true,
-  styles = {
-    sidebars = "transparent",
-    floats = "transparent",
-  },
-})
-vim.cmd([[colorscheme tokyonight]])
 
 -- 未使用のシンボルを見やすくする（例：少し明るいグレーにする）
 vim.api.nvim_set_hl(0, "@lsp.typemod.unused", { fg = "#7f849c" })

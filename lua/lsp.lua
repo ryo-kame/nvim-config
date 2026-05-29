@@ -2,17 +2,13 @@
 require("mason").setup()
 
 require("mason-lspconfig").setup({
-  ensure_installed = { "lua_ls", "ts_ls", "pyright" }
+  ensure_installed = { "lua_ls", "ts_ls", "pyright", "jdtls" },
+  -- jdtls は nvim-jdtls 側で起動するため自動 enable から除外する
+  automatic_enable = { exclude = { "jdtls" } },
 })
 
--- LSPサーバーの設定
-local lspconfig = require("lspconfig")
-
--- Lua
-lspconfig.lua_ls.setup({})
-
--- TypeScript / JavaScript
-lspconfig.ts_ls.setup({  -- ✅ ts_ls → tsserver に修正
+-- TypeScript / JavaScript のカスタム on_attach
+vim.lsp.config("ts_ls", {
   on_attach = function(client, bufnr)
     vim.api.nvim_create_autocmd("BufWritePre", {
       buffer = bufnr,
@@ -27,5 +23,4 @@ lspconfig.ts_ls.setup({  -- ✅ ts_ls → tsserver に修正
   end,
 })
 
--- Python
-lspconfig.pyright.setup({})
+-- lua_ls / pyright は nvim-lspconfig が lsp/<name>.lua で提供するデフォルト設定を使用

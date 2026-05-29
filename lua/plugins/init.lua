@@ -18,7 +18,7 @@ return {
   { "saadparwaiz1/cmp_luasnip" },
 
   -- シンタックスハイライト
-  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+  { "nvim-treesitter/nvim-treesitter", branch = "master", build = ":TSUpdate" },
 
   -- Fuzzy finder
   { "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" } },

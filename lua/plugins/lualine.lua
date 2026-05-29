@@ -5,7 +5,7 @@ return {
   config = function()
     require("lualine").setup({
       options = {
-        theme = "tokyonight", -- 好きなテーマに変えてね
+        theme = "catppuccin", -- 好きなテーマに変えてね
         icons_enabled = true,
         section_separators = { left = '', right = '' },
         component_separators = { left = '', right = '' },
