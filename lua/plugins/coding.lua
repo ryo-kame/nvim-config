@@ -15,6 +15,7 @@ return {
   -- treesitter（構文解析）
   {
     "nvim-treesitter/nvim-treesitter",
+    branch = "master",
     build = ":TSUpdate",
   },
 

@@ -20,6 +20,22 @@ local workspace_dir = vim.fn.stdpath("cache") .. "/jdtls/" .. project_name
 
 local mason_path = vim.fn.stdpath("data") .. "/mason/packages/jdtls"
 local launcher_jar = vim.fn.glob(mason_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
+-- jdtls がまだインストールされていなければ何もしない
+if launcher_jar == nil or launcher_jar == "" then
+  return
+end
+
+-- OS/アーキテクチャに応じた jdtls の config ディレクトリを選ぶ
+local uname = vim.loop.os_uname()
+local is_arm = uname.machine:match("arm") ~= nil or uname.machine:match("aarch64") ~= nil
+local config_dir
+if uname.sysname == "Darwin" then
+  config_dir = is_arm and "config_mac_arm" or "config_mac"
+elseif uname.sysname == "Linux" then
+  config_dir = is_arm and "config_linux_arm" or "config_linux"
+else
+  config_dir = "config_win"
+end
 
 -- 補完用 capabilities（cmp-nvim-lsp があれば利用）
 local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -41,7 +57,7 @@ local config = {
     "--add-opens", "java.base/java.util=ALL-UNNAMED",
     "--add-opens", "java.base/java.lang=ALL-UNNAMED",
     "-jar", launcher_jar,
-    "-configuration", mason_path .. "/config_mac",
+    "-configuration", mason_path .. "/" .. config_dir,
     "-data", workspace_dir,
   },
   root_dir = root_dir,
