@@ -26,6 +26,7 @@ require("nvimtree")
 require("telescope-config")
 require("git")
 require("tasks")
+require("ide")
 require("bufferline").setup({
   options = {
     mode = "buffers", -- or "tabs"
