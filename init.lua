@@ -20,6 +20,7 @@ require("lazy").setup("plugins")
 
 -- プラグインごとの設定ファイル読み込み（必要なら個別ファイルに分けておくと整理しやすい）
 require("options")
+require("term_panel").setup() -- 下部ターミナルパネル（term / claude をタブ切り替え）
 require("lsp")
 require("cmp-config")
 require("treesitter")

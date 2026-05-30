@@ -52,19 +52,7 @@ return {
     require("bufferline").setup({})
     end,
   },
-  {
-    "akinsho/toggleterm.nvim",
-    version = "*",
-    config = function()
-      require("toggleterm").setup({
-        open_mapping = [[<C-\>]], -- Ctrl+\ でトグル
-        direction = "horizontal", -- 横方向（下）に表示
-        size = 15, -- 高さ（お好みで調整）
-        shade_terminals = true, -- 少し背景を暗く
-        start_in_insert = true, -- 開いたらすぐ入力モード
-        persist_size = true, -- サイズ記憶
-      })
-    end
-  }
+  -- 端末は lua/term_panel.lua の「ターミナルパネル」に統一したため
+  -- toggleterm.nvim は撤去（<C-\> はパネル開閉に再割り当て）
 }
 

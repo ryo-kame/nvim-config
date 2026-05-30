@@ -3,7 +3,16 @@
 return {
   {
     "coder/claudecode.nvim",
-    dependencies = { "folke/snacks.nvim" }, -- ターミナル表示の強化に使用
+    -- Claude Code の端末は下部「ターミナルパネル」(lua/term_panel.lua) の
+    -- カスタムプロバイダに委譲する。term タブと同じウィンドウに同居し、
+    -- winbar 上のタブで切り替えられる（VS Code の下部パネル風）。
+    opts = function()
+      return {
+        terminal = {
+          provider = require("term_panel").provider(),
+        },
+      }
+    end,
     config = true,
     keys = {
       { "<leader>a", nil, desc = "AI/Claude Code" },
