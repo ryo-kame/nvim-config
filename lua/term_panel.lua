@@ -38,6 +38,37 @@ local function claude_item()
   end
 end
 
+-- buf がパネルのいずれかの端末バッファか
+local function is_panel_item_buf(buf)
+  for _, it in ipairs(state.items) do
+    if it.buf == buf then
+      return true
+    end
+  end
+  return false
+end
+
+-- パネル外の「通常エディタウィンドウ」を探す（tree / overseer / 端末 / フロートは除外）
+local SKIP_FT = { NvimTree = true, OverseerList = true, ["neo-tree"] = true, qf = true }
+local function find_editor_win()
+  for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if w ~= state.win and vim.api.nvim_win_get_config(w).relative == "" then
+      local b = vim.api.nvim_win_get_buf(w)
+      if not SKIP_FT[vim.bo[b].filetype] and vim.bo[b].buftype ~= "terminal" then
+        return w
+      end
+    end
+  end
+end
+
+local function find_tree_win()
+  for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if vim.bo[vim.api.nvim_win_get_buf(w)].filetype == "NvimTree" then
+      return w
+    end
+  end
+end
+
 -- "claude --flag" のような文字列を termopen 用の table に変換（native プロバイダ準拠）
 local function split_cmd(cmd_string)
   if type(cmd_string) == "table" then
@@ -68,6 +99,7 @@ local function ensure_win()
   if win_valid() then
     return
   end
+  state._guard = true -- 作成時に一瞬入る通常バッファをガードが追い出さないよう抑止
   local prev = vim.api.nvim_get_current_win()
   vim.cmd("botright " .. state.height .. "split")
   local w = vim.api.nvim_get_current_win()
@@ -81,11 +113,13 @@ local function ensure_win()
   if vim.api.nvim_win_is_valid(prev) then
     vim.api.nvim_set_current_win(prev)
   end
+  state._guard = false
 end
 
 -- item のターミナルを新規起動し、パネルに表示する
 local function spawn(item)
   ensure_win()
+  state._guard = true -- enew の空バッファをガードが追い出さないよう抑止
   vim.api.nvim_win_call(state.win, function()
     vim.cmd("enew")
     local buf = vim.api.nvim_get_current_buf()
@@ -102,6 +136,7 @@ local function spawn(item)
     vim.bo[buf].bufhidden = "hide"
     vim.bo[buf].buflisted = false -- bufferline のタブには出さない
   end)
+  state._guard = false
 end
 
 -- ---------------------------------------------------------------------------
@@ -266,9 +301,55 @@ end
 -- セットアップ（init.lua から呼ぶ）
 -- ---------------------------------------------------------------------------
 
+-- パネルウィンドウは端末専用・最下部固定にしたい。nvim-tree などが通常ファイルを
+-- パネルに開こうとしたら、それを上部の通常エディタウィンドウへ追い出し、パネルには
+-- 端末を戻す。これで claude / term タブは常に画面下部に留まる。
+local function setup_guard()
+  vim.api.nvim_create_autocmd("BufWinEnter", {
+    group = vim.api.nvim_create_augroup("TermPanelGuard", { clear = true }),
+    callback = function(ev)
+      if state._guard or not win_valid() then
+        return
+      end
+      if vim.api.nvim_get_current_win() ~= state.win then
+        return
+      end
+      if is_panel_item_buf(ev.buf) then
+        return -- 正規の端末バッファならそのまま
+      end
+      state._guard = true
+      pcall(function()
+        local intruder = ev.buf
+        -- パネルには現在タブの端末を戻す
+        local item = state.items[state.current]
+        if buf_valid(item) then
+          vim.api.nvim_win_set_buf(state.win, item.buf)
+        end
+        -- 侵入してきたバッファは通常エディタウィンドウへ。無ければ作る。
+        local editor = find_editor_win()
+        if not editor then
+          local tree = find_tree_win()
+          if tree then
+            vim.api.nvim_set_current_win(tree)
+            vim.cmd("rightbelow vsplit") -- tree の右に新規ウィンドウ
+          else
+            vim.api.nvim_set_current_win(state.win)
+            vim.cmd("aboveleft split") -- パネルの上に新規ウィンドウ
+          end
+          editor = vim.api.nvim_get_current_win()
+        end
+        vim.api.nvim_set_current_win(editor)
+        vim.api.nvim_win_set_buf(editor, intruder)
+      end)
+      state._guard = false
+    end,
+  })
+end
+
 function M.setup(opts)
   opts = opts or {}
   state.height = opts.height or state.height
+  setup_guard()
 
   -- 1 番目のタブとしてシェルを登録（起動は初表示時に遅延）
   M.register({ name = "term", cmd = { vim.o.shell }, env = nil })
