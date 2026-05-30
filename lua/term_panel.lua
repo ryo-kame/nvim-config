@@ -69,6 +69,29 @@ local function find_tree_win()
   end
 end
 
+-- 通常エディタウィンドウへフォーカスを移し、その win id を返す。無ければ作る。
+-- telescope / nvim-tree からファイルを開く前に呼ぶことで、ファイルが tree や
+-- 下部パネルに開いてレイアウトが崩れる（パネルが全幅でなくなる）のを防ぐ。
+function M.goto_editor()
+  local editor = find_editor_win()
+  if not editor then
+    local tree = find_tree_win()
+    if tree then
+      vim.api.nvim_set_current_win(tree)
+      vim.cmd("rightbelow vsplit") -- tree の右に新規ウィンドウ
+    elseif win_valid() then
+      vim.api.nvim_set_current_win(state.win)
+      vim.cmd("aboveleft split") -- パネルの上に新規ウィンドウ
+    else
+      vim.cmd("vsplit")
+    end
+    vim.cmd("enew")
+    editor = vim.api.nvim_get_current_win()
+  end
+  vim.api.nvim_set_current_win(editor)
+  return editor
+end
+
 -- "claude --flag" のような文字列を termopen 用の table に変換（native プロバイダ準拠）
 local function split_cmd(cmd_string)
   if type(cmd_string) == "table" then

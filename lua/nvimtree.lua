@@ -19,6 +19,20 @@ require("nvim-tree").setup({
   git = {
     enable = true,
   },
+  actions = {
+    open_file = {
+      -- ファイルは tree / ターミナル / Overseer 以外の通常エディタ窓に開く。
+      -- 該当する窓が無ければ nvim-tree が新しく split を作るので、下部の
+      -- ターミナルパネルにファイルが開いてレイアウトが崩れるのを防ぐ。
+      window_picker = {
+        enable = true,
+        exclude = {
+          filetype = { "NvimTree", "OverseerList", "notify", "qf", "diff" },
+          buftype = { "terminal", "nofile", "help" },
+        },
+      },
+    },
+  },
 })
 
 -- ~/.config/nvim/lua/nvimtree.lua の末尾に追加

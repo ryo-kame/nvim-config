@@ -49,17 +49,29 @@ vim.cmd("syntax enable")
 vim.api.nvim_set_hl(0, "@lsp.typemod.unused", { fg = "#7f849c" })
 
 -- Telescope キーマップ
-vim.keymap.set("n", "<C-p>", "<cmd>Telescope find_files<CR>")
-vim.keymap.set("n", "<leader>fg", "<cmd>Telescope live_grep<CR>")
-vim.keymap.set("n", "<leader>/", "<cmd>Telescope current_buffer_fuzzy_find<CR>", { noremap = true, silent = true })
-vim.keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<CR>")
-vim.keymap.set("n", "<leader>fh", "<cmd>Telescope help_tags<CR>")
-vim.keymap.set('n', '<leader>fa', function()
-  require('telescope.builtin').find_files({
-    hidden = true,
-    no_ignore = true
-  })
-end, { desc = "すべてのファイルを表示（.gitignore無視も含む）" })
+-- ツリーや下部パネルにフォーカスがある状態で起動すると、ファイルがそこに開いて
+-- レイアウトが崩れる（パネルが全幅でなくなる）。起動前に通常エディタウィンドウへ
+-- フォーカスを移すことで、ファイルは必ずエディタ側に開く。
+local function in_editor(fn)
+  return function()
+    require("term_panel").goto_editor()
+    fn()
+  end
+end
+local builtin = function(name, opts)
+  return function()
+    require("telescope.builtin")[name](opts)
+  end
+end
+vim.keymap.set("n", "<C-p>", in_editor(builtin("find_files")))
+vim.keymap.set("n", "<leader>fg", in_editor(builtin("live_grep")))
+vim.keymap.set("n", "<leader>/", in_editor(builtin("current_buffer_fuzzy_find")), { noremap = true, silent = true })
+vim.keymap.set("n", "<leader>fb", in_editor(builtin("buffers")))
+vim.keymap.set("n", "<leader>fh", in_editor(builtin("help_tags")))
+vim.keymap.set("n", "<leader>fa", in_editor(builtin("find_files", {
+  hidden = true,
+  no_ignore = true,
+})), { desc = "すべてのファイルを表示（.gitignore無視も含む）" })
 
 vim.o.updatetime = 250
 vim.cmd [[autocmd CursorHold * lua vim.diagnostic.open_float(nil, { focusable = false })]]
