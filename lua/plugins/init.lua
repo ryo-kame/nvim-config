@@ -18,7 +18,8 @@ return {
   { "saadparwaiz1/cmp_luasnip" },
 
   -- シンタックスハイライト
-  { "nvim-treesitter/nvim-treesitter", branch = "master", build = ":TSUpdate" },
+  -- Neovim 0.12 では master ブランチ（アーカイブ済み）は非対応。main ブランチを使う。
+  { "nvim-treesitter/nvim-treesitter", branch = "main", lazy = false, build = ":TSUpdate" },
 
   -- Fuzzy finder
   { "nvim-telescope/telescope.nvim", dependencies = { "nvim-lua/plenary.nvim" } },
