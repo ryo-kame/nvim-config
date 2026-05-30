@@ -18,8 +18,22 @@ local parsers = {
   "css",
 }
 
+-- main API が利用可能か確認する。別マシンなどで lazy.nvim がまだ旧 master ブランチを
+-- チェックアウトしたままだと install() が存在せず、起動時に落ちてしまう。その場合は
+-- 静かに諦め、ユーザーに :Lazy sync を促す（main へ切替＆再起動すれば有効になる）。
+local ok, nvim_treesitter = pcall(require, "nvim-treesitter")
+if not ok or type(nvim_treesitter.install) ~= "function" then
+  vim.schedule(function()
+    vim.notify(
+      "nvim-treesitter: main ブランチが未適用です。`:Lazy sync` 実行後に Neovim を再起動してください。",
+      vim.log.levels.WARN
+    )
+  end)
+  return
+end
+
 -- 未インストールのパーサだけ非同期で取得する（:TSUpdate / :TSInstall でも可）
-require("nvim-treesitter").install(parsers)
+nvim_treesitter.install(parsers)
 
 -- ファイルを開くたびに、パーサが利用可能ならハイライト＆インデントを有効化。
 -- パーサが無いファイルタイプでは pcall でそっと失敗させる（旧 highlight.enable=true 相当）。
