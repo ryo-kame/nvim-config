@@ -37,5 +37,5 @@ require("nvim-tree").setup({
 
 -- ~/.config/nvim/lua/nvimtree.lua の末尾に追加
 
-vim.keymap.set("n", "<C-n>", ":NvimTreeToggle<CR>", { noremap = true, silent = true })
+vim.keymap.set("n", "<C-n>", ":NvimTreeToggle<CR>", { noremap = true, silent = true, desc = "ファイルツリーを開閉" })
 

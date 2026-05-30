@@ -24,10 +24,10 @@ vim.api.nvim_create_autocmd("TermOpen", {
   pattern = "term://*",
   callback = function()
     local opts = { buffer = 0 }
-    vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], opts)       -- Esc でターミナルモードを抜ける
-    vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], opts) -- 左のウィンドウへ
-    vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], opts) -- 下のウィンドウへ
-    vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], opts) -- 上のウィンドウへ
-    vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], opts) -- 右のウィンドウへ
+    vim.keymap.set("t", "<Esc>", [[<C-\><C-n>]], vim.tbl_extend("force", opts, { desc = "ターミナルモードを抜ける" }))
+    vim.keymap.set("t", "<C-h>", [[<C-\><C-n><C-w>h]], vim.tbl_extend("force", opts, { desc = "左のウィンドウへ" }))
+    vim.keymap.set("t", "<C-j>", [[<C-\><C-n><C-w>j]], vim.tbl_extend("force", opts, { desc = "下のウィンドウへ" }))
+    vim.keymap.set("t", "<C-k>", [[<C-\><C-n><C-w>k]], vim.tbl_extend("force", opts, { desc = "上のウィンドウへ" }))
+    vim.keymap.set("t", "<C-l>", [[<C-\><C-n><C-w>l]], vim.tbl_extend("force", opts, { desc = "右のウィンドウへ" }))
   end,
 })
