@@ -8,6 +8,7 @@ return {
       -- プレフィックスにグループ名を付けて一覧を見やすくする
       spec = {
         { "<leader>a", group = "AI/Claude Code" },
+        { "<leader>d", group = "debug (DAP)" },
         { "<leader>f", group = "find (telescope)" },
       },
     },
