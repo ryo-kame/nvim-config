@@ -5,7 +5,7 @@ return {
   config = function()
     require("lualine").setup({
       options = {
-        theme = "catppuccin", -- 好きなテーマに変えてね
+        theme = "catppuccin-mocha", -- catppuccin の flavour に合わせる（catppuccin-nvim で自動追従も可）
         icons_enabled = true,
         section_separators = { left = '', right = '' },
         component_separators = { left = '', right = '' },
