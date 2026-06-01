@@ -1,6 +1,25 @@
 -- MasonでLSPサーバーを管理
 require("mason").setup()
 
+-- LSP サーバーではない Java デバッグ用パッケージを ensure install する。
+-- これらはバンドルとして jdtls(ftplugin/java.lua) に読み込まれる。
+-- mason-lspconfig の ensure_installed には載らないため registry を直接使う。
+local function ensure_mason_packages(packages)
+  local ok, registry = pcall(require, "mason-registry")
+  if not ok then
+    return
+  end
+  registry.refresh(function()
+    for _, name in ipairs(packages) do
+      local found, pkg = pcall(registry.get_package, name)
+      if found and not pkg:is_installed() then
+        pkg:install()
+      end
+    end
+  end)
+end
+ensure_mason_packages({ "java-debug-adapter", "java-test" })
+
 require("mason-lspconfig").setup({
   ensure_installed = { "lua_ls", "ts_ls", "pyright", "jdtls" },
   -- jdtls は nvim-jdtls 側で起動するため自動 enable から除外する

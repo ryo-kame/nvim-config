@@ -22,6 +22,7 @@ require("lazy").setup("plugins")
 require("options")
 require("term_panel").setup() -- 下部ターミナルパネル（term / claude をタブ切り替え）
 require("lsp")
+require("dap-config")
 require("cmp-config")
 require("treesitter")
 require("nvimtree")
