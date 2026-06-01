@@ -50,6 +50,14 @@ overseer.register_template({
         end,
       })
     end
+    -- デバッグ用: bootRun を JVM デバッグ有効（既定でポート 5005, suspend=y）で起動。
+    -- 起動後、Java バッファで <F5> → "Attach to bootRun (5005)" で接続する。
+    table.insert(ret, {
+      name = "gradle bootRun (debug-jvm)",
+      builder = function()
+        return { cmd = { gradle_cmd() }, args = { "bootRun", "--debug-jvm" }, components = { "default" } }
+      end,
+    })
     -- 任意の Gradle タスクを入力して実行
     table.insert(ret, {
       name = "gradle <custom>",
