@@ -5,7 +5,7 @@ return {
   config = function()
     require("lualine").setup({
       options = {
-        theme = "catppuccin", -- 好きなテーマに変えてね
+        theme = "catppuccin-mocha", -- ui.lua の flavour="mocha" に合わせる（素の "catppuccin" は存在しない）
         icons_enabled = true,
         section_separators = { left = '', right = '' },
         component_separators = { left = '', right = '' },

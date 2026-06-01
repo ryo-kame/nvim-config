@@ -69,6 +69,46 @@ local function find_tree_win()
   end
 end
 
+-- w が「空の No Name エディタウィンドウ」か（掃除対象の判定）。
+-- 下部パネル・フロート・ツリー・端末/特殊バッファ・名前付き(実ファイル)・変更済みは対象外。
+local function is_stray_empty_win(w)
+  if w == state.win then
+    return false
+  end
+  if vim.api.nvim_win_get_config(w).relative ~= "" then
+    return false
+  end
+  local b = vim.api.nvim_win_get_buf(w)
+  if vim.bo[b].filetype == "NvimTree" then
+    return false
+  end
+  if vim.bo[b].buftype ~= "" then
+    return false
+  end
+  if vim.api.nvim_buf_get_name(b) ~= "" then
+    return false
+  end
+  if vim.bo[b].modified then
+    return false
+  end
+  return true
+end
+
+-- 現在ウィンドウが実ファイルを表示しているとき、他に残った空の No Name
+-- エディタウィンドウを閉じる。ツリーは winfixwidth=30 で固定なので、空ウィンドウ
+-- の幅は隣のコードウィンドウに吸収され、コードが全幅になる。
+function M.close_stray_editors()
+  local cur = vim.api.nvim_get_current_win()
+  if vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(cur)) == "" then
+    return -- 現在ウィンドウ自体が空なら、まだ掃除しない（唯一のエディタを消さない）
+  end
+  for _, w in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if w ~= cur and is_stray_empty_win(w) then
+      pcall(vim.api.nvim_win_close, w, false)
+    end
+  end
+end
+
 -- 通常エディタウィンドウへフォーカスを移し、その win id を返す。無ければ作る。
 -- telescope / nvim-tree からファイルを開く前に呼ぶことで、ファイルが tree や
 -- 下部パネルに開いてレイアウトが崩れる（パネルが全幅でなくなる）のを防ぐ。
@@ -369,10 +409,33 @@ local function setup_guard()
   })
 end
 
+-- 実ファイルが通常ウィンドウに開かれたら、tree とコードの間などに残った空の
+-- No Name エディタウィンドウを掃除してコードを全幅にする。telescope / nvim-tree /
+-- claudecode の diff など、どの経路でファイルを開いても自動で整う。
+local function setup_stray_cleanup()
+  vim.api.nvim_create_autocmd("BufWinEnter", {
+    group = vim.api.nvim_create_augroup("TermPanelStray", { clear = true }),
+    callback = function(ev)
+      if state._guard then
+        return
+      end
+      -- 実ファイル（通常バッファ・名前あり）が開かれたときだけ
+      if vim.bo[ev.buf].buftype ~= "" then
+        return
+      end
+      if vim.api.nvim_buf_get_name(ev.buf) == "" then
+        return
+      end
+      vim.schedule(M.close_stray_editors)
+    end,
+  })
+end
+
 function M.setup(opts)
   opts = opts or {}
   state.height = opts.height or state.height
   setup_guard()
+  setup_stray_cleanup()
 
   -- 1 番目のタブとしてシェルを登録（起動は初表示時に遅延）
   M.register({ name = "term", cmd = { vim.o.shell }, env = nil })
@@ -393,6 +456,9 @@ function M.setup(opts)
   map("n", "<leader>t2", function()
     M.show(2, true)
   end, { desc = "パネル: claude タブ" })
+  map("n", "<leader>wo", function()
+    M.close_stray_editors()
+  end, { desc = "エディタを全幅に整える（空ウィンドウを掃除）" })
 end
 
 return M
