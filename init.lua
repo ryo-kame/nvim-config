@@ -15,6 +15,10 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+vim.opt.title = true
+-- 「nvim: ディレクトリ名」 という形式で表示します
+vim.opt.titlestring = "nvim: %{fnamemodify(getcwd(), ':t')}"
+
 -- lazy.nvim のプラグイン読み込み
 -- image.nvim は magick_cli プロセッサ（ImageMagick CLI）を使うため luarocks 不要。
 -- lazy の rocks 機能が hererocks を勝手に導入しようとするのを無効化する。
