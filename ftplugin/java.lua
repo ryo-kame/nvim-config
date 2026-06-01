@@ -54,9 +54,19 @@ local debug_jar = vim.fn.glob(
 if debug_jar ~= "" then
   table.insert(bundles, debug_jar)
 end
+-- java-test の jar のうち、OSGi バンドルでない jacocoagent.jar と
+-- テストランナー本体は除外する（bundles に渡すとロードエラーになるため）。
+local test_exclude = {
+  ["jacocoagent.jar"] = true,
+  ["com.microsoft.java.test.runner-jar-with-dependencies.jar"] = true,
+}
 local test_jars = vim.fn.glob(mason_pkgs .. "/java-test/extension/server/*.jar", true)
 if test_jars ~= "" then
-  vim.list_extend(bundles, vim.split(test_jars, "\n"))
+  for _, jar in ipairs(vim.split(test_jars, "\n")) do
+    if jar ~= "" and not test_exclude[vim.fn.fnamemodify(jar, ":t")] then
+      table.insert(bundles, jar)
+    end
+  end
 end
 
 local config = {
@@ -87,12 +97,11 @@ local config = {
     vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 
-    -- デバッグ: dap.adapters.java と既定のメインクラス構成を登録
-    jdtls.setup_dap({ hotcodereplace = "auto" })
-
-    -- Spring Boot などへ attach する構成（bootRun --debug-jvm のポート 5005）
+    -- デバッグ: dap.adapters.java と attach 構成を登録（nvim-dap がある場合のみ）
     local dap_ok, dap = pcall(require, "dap")
     if dap_ok then
+      jdtls.setup_dap({ hotcodereplace = "auto" })
+      -- Spring Boot などへ attach する構成（bootRun --debug-jvm のポート 5005）
       dap.configurations.java = {
         {
           type = "java",
