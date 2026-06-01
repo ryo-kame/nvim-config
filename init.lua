@@ -15,13 +15,20 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+vim.opt.title = true
+-- 「nvim: ディレクトリ名」 という形式で表示します
+vim.opt.titlestring = "nvim: %{fnamemodify(getcwd(), ':t')}"
+
 -- lazy.nvim のプラグイン読み込み
-require("lazy").setup("plugins")
+-- image.nvim は magick_cli プロセッサ（ImageMagick CLI）を使うため luarocks 不要。
+-- lazy の rocks 機能が hererocks を勝手に導入しようとするのを無効化する。
+require("lazy").setup("plugins", { rocks = { enabled = false } })
 
 -- プラグインごとの設定ファイル読み込み（必要なら個別ファイルに分けておくと整理しやすい）
 require("options")
 require("term_panel").setup() -- 下部ターミナルパネル（term / claude をタブ切り替え）
 require("lsp")
+require("dap-config")
 require("cmp-config")
 require("treesitter")
 require("nvimtree")
@@ -64,6 +71,7 @@ local builtin = function(name, opts)
   end
 end
 vim.keymap.set("n", "<C-p>", in_editor(builtin("find_files")))
+vim.keymap.set("n", "<leader>fp", in_editor(builtin("find_files")), { desc = "ファイル名検索（<C-p>と同じ）" })
 vim.keymap.set("n", "<leader>fg", in_editor(builtin("live_grep")))
 vim.keymap.set("n", "<leader>/", in_editor(builtin("current_buffer_fuzzy_find")), { noremap = true, silent = true })
 vim.keymap.set("n", "<leader>fb", in_editor(builtin("buffers")))

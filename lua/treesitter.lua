@@ -16,6 +16,8 @@ local parsers = {
   "json",
   "html",
   "css",
+  "markdown",        -- render-markdown.nvim 用
+  "markdown_inline", -- 同上（インライン記法のレンダリングに必要）
 }
 
 -- main API が利用可能か確認する。別マシンなどで lazy.nvim がまだ旧 master ブランチを
