@@ -97,7 +97,7 @@ local config = {
     vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
 
-    -- デバッグ: dap.adapters.java と attach 構成を登録（nvim-dap がある場合のみ）
+    -- デバッグ: dap.adapters.java と attach 構成・テストデバッグを登録（nvim-dap がある場合のみ）
     local dap_ok, dap = pcall(require, "dap")
     if dap_ok then
       jdtls.setup_dap({ hotcodereplace = "auto" })
@@ -111,15 +111,15 @@ local config = {
           port = 5005,
         },
       }
-    end
 
-    -- テストのデバッグ実行（buffer-local）
-    vim.keymap.set("n", "<leader>dn", function()
-      jdtls.test_nearest_method()
-    end, vim.tbl_extend("force", opts, { desc = "DAP: 近傍のテストをデバッグ" }))
-    vim.keymap.set("n", "<leader>dT", function()
-      jdtls.test_class()
-    end, vim.tbl_extend("force", opts, { desc = "DAP: テストクラスをデバッグ" }))
+      -- テストのデバッグ実行（buffer-local）
+      vim.keymap.set("n", "<leader>dn", function()
+        jdtls.test_nearest_method()
+      end, vim.tbl_extend("force", opts, { desc = "DAP: 近傍のテストをデバッグ" }))
+      vim.keymap.set("n", "<leader>dT", function()
+        jdtls.test_class()
+      end, vim.tbl_extend("force", opts, { desc = "DAP: テストクラスをデバッグ" }))
+    end
   end,
 }
 
