@@ -2,7 +2,8 @@
 
 require("nvim-tree").setup({
   view = {
-    width = 30,
+    -- 画面全体の幅に対する割合で指定（tree 3割・ファイル窓 7割）
+    width = "30%",
     side = "left",
     relativenumber = true,
   },

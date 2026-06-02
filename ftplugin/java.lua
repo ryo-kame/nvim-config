@@ -103,6 +103,8 @@ local config = {
     vim.keymap.set("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "実装へジャンプ" }))
     -- カーソル位置のシンボルを参照している箇所を一覧表示
     vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "参照箇所を一覧表示" }))
+    -- 実装クラスを Telescope のピッカー（プレビュー＋あいまい検索）で一覧表示（複数実装に便利）
+    vim.keymap.set("n", "gI", "<cmd>Telescope lsp_implementations<CR>", vim.tbl_extend("force", opts, { desc = "実装クラス一覧（Telescope）" }))
 
     -- デバッグ: dap.adapters.java と attach 構成・テストデバッグを登録（nvim-dap がある場合のみ）
     local dap_ok, dap = pcall(require, "dap")

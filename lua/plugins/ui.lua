@@ -29,6 +29,7 @@ return {
           cmp = true,
           bufferline = true,
           mason = true,
+          illuminate = true,
         },
       })
       vim.cmd.colorscheme("catppuccin")

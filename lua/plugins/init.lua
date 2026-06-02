@@ -53,6 +53,8 @@ return {
     require("bufferline").setup({})
     end,
   },
+  -- バッファ削除（ウィンドウ／分割／nvim-tree のレイアウトを保ったまま閉じる）
+  { "famiu/bufdelete.nvim" },
   -- 端末は lua/term_panel.lua の「ターミナルパネル」に統一したため
   -- toggleterm.nvim は撤去（<C-\> はパネル開閉に再割り当て）
 }
