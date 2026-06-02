@@ -15,7 +15,10 @@ if root_dir == nil or root_dir == "" then
   return
 end
 
-local project_name = vim.fn.fnamemodify(root_dir, ":p:h:t")
+-- ワークスペース名はディレクトリ名だけだと、同一リポジトリの複数チェックアウト
+-- (例: a/zozo-bo-core と b/zozo-bo-core) が同じ workspace を共有してしまい、
+-- 切り替えるたびに索引が壊れて実装ジャンプ等が壊れる。フルパスから一意名を生成する。
+local project_name = vim.fn.fnamemodify(root_dir, ":p:h"):gsub("[/\\:]", "_")
 local workspace_dir = vim.fn.stdpath("cache") .. "/jdtls/" .. project_name
 
 local mason_path = vim.fn.stdpath("data") .. "/mason/packages/jdtls"
@@ -96,6 +99,10 @@ local config = {
     vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
     vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
     vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
+    -- インターフェース/抽象メソッドから実装クラスへジャンプ（複数あれば一覧から選択）
+    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "実装へジャンプ" }))
+    -- カーソル位置のシンボルを参照している箇所を一覧表示
+    vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "参照箇所を一覧表示" }))
 
     -- デバッグ: dap.adapters.java と attach 構成・テストデバッグを登録（nvim-dap がある場合のみ）
     local dap_ok, dap = pcall(require, "dap")
