@@ -90,8 +90,6 @@ vim.o.wrap = false
 vim.keymap.set("n", "<Tab>", ":bnext<CR>", { noremap = true, silent = true })
 -- 前のバッファに移動
 vim.keymap.set("n", "<S-Tab>", ":bprevious<CR>", { noremap = true, silent = true })
--- バッファ（タブ）を閉じる
-vim.keymap.set("n", "<leader>bd", ":bdelete<CR>", { noremap = true, silent = true, desc = "バッファを閉じる" })
 -- 今のバッファ以外を全部閉じる
 vim.keymap.set("n", "<leader>bo", ":%bd|e#|bd#<CR>", { noremap = true, silent = true, desc = "他のバッファを閉じる" })
 

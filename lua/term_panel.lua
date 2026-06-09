@@ -198,6 +198,14 @@ local function spawn(item)
     item.buf = buf
     vim.bo[buf].bufhidden = "hide"
     vim.bo[buf].buflisted = false -- bufferline のタブには出さない
+    -- Claude タブでは <Esc> は今まで通り nvim のノーマルモードへ抜ける
+    -- （options.lua の TermOpen が張る <Esc>→<C-\><C-n> をそのまま使う）。
+    -- Claude 本体に Esc を送りたいときは <C-q> で端末へ ESC を転送する。
+    -- RHS の <Esc> は noremap なので <C-\><C-n>（ノーマル移行）へ再マップされず、
+    -- ターミナルジョブ（Claude）へ ESC バイトがそのまま届く。
+    if item.name == "claude" then
+      vim.keymap.set("t", "<C-q>", "<Esc>", { buffer = buf, desc = "Claude に Esc を送る" })
+    end
   end)
   state._guard = false
 end

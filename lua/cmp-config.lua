@@ -22,3 +22,21 @@ cmp.setup({
   }),
 })
 
+-- SQL 系バッファでは vim-dadbod-completion（接続中 DB の実スキーマからテーブル名／
+-- カラム名を補完）をソースに追加する。SQL Server には実用的な LSP が無いため、
+-- これがスキーマ補完の主役になる。プラグイン本体は ft トリガで遅延読み込みされる。
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "sql", "mysql", "plsql" },
+  callback = function()
+    cmp.setup.buffer({
+      sources = cmp.config.sources({
+        { name = "vim-dadbod-completion" },
+        { name = "luasnip" },
+      }, {
+        { name = "buffer" },
+        { name = "path" },
+      }),
+    })
+  end,
+})
+

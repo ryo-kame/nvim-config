@@ -16,6 +16,7 @@ local parsers = {
   "json",
   "html",
   "css",
+  "sql", -- SQL シンタックスハイライト（vim-dadbod と併用）
   "markdown",        -- render-markdown.nvim 用
   "markdown_inline", -- 同上（インライン記法のレンダリングに必要）
 }
